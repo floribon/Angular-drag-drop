@@ -3,63 +3,63 @@ $(function() {
     angular.module('dragAndDrop', [])
         .directive( 'drag', function ( dndApi ) {
 
-        var drags = [],
-            dragging = new RegExp( '(\\s|^)dragging(\\s|$)' );
+            var drags = [],
+                dragging = new RegExp( '(\\s|^)dragging(\\s|$)' );
 
-        return {
-            restrict: 'A',
-            scope: {
-                item: '=drag',
-                whenStart : '&',
-                whenEnd : '&'
-            },
-            link: function ( scope, elem, attr, ctrl ) {
+            return {
+                restrict: 'A',
+                scope: {
+                    item: '=drag',
+                    whenStart : '&',
+                    whenEnd : '&'
+                },
+                link: function ( scope, elem, attr, ctrl ) {
 
-                elem[0].addEventListener( 'dragstart', function ( e ) {
+                    elem[0].addEventListener( 'dragstart', function ( e ) {
 
-                    if ( drags.length === 0 ) {
-                        drags = document.querySelectorAll( '.drop' );
-                    }
+                        if ( drags.length === 0 ) {
+                            drags = document.querySelectorAll( '.drop' );
+                        }
 
-                    angular.forEach( drags, function ( value, key ) {
-                        $(value).addClass('dragging');
+                        angular.forEach( drags, function ( value, key ) {
+                            $(value).addClass('dragging');
+                        } );
+
+                        $(this).addClass('in-drag');
+
+                        dndApi.setData(scope.item);
+
+                        e.dataTransfer.effectAllowed = 'move';
+
+                        scope.$apply( function () {
+                            scope.whenStart( { data: dndApi.getData() } );
+                        } );
+
                     } );
 
-                    $(this).addClass('in-drag');
+                    elem[0].addEventListener( 'dragend', function ( e ) {
 
-                    dndApi.setData(scope.item);
+                        $(this).removeClass('in-drag');
 
-                    e.dataTransfer.effectAllowed = 'move';
+                        angular.forEach( drags, function ( value, key ) {
+                            $(value).removeClass('dragging');
+                        } );
 
-                    scope.$apply( function () {
-                        scope.whenStart( { data: dndApi.getData() } );
+                        scope.$apply( function () {
+                            scope.whenEnd( { data: dndApi.getData() } );
+                        } );
+
+                        dndApi.removeData();
+
                     } );
 
-                } );
+                    elem[0].draggable = true;
 
-                elem[0].addEventListener( 'dragend', function ( e ) {
+                    elem.addClass('drag');
 
-                    $(this).removeClass('in-drag');
-
-                    angular.forEach( drags, function ( value, key ) {
-                        $(value).removeClass('dragging');
-                    } );
-
-                    scope.$apply( function () {
-                        scope.whenEnd( { data: dndApi.getData() } );
-                    } );
-
-                    dndApi.removeData();
-
-                } );
-
-                elem[0].draggable = true;
-
-                elem.addClass('drag');
-
-            }
-        };
-    } ).directive( 'drop', function ( dndApi ) {
+                }
+            };
+        } ).directive( 'drop', function ( dndApi ) {
 
         var drags = [],
             dragging = new RegExp( '(\\s|^)dragging(\\s|$)');
@@ -138,7 +138,7 @@ $(function() {
 
             }
         };
-    } ).factory('dndApi', function(){
+        } ).factory('dndApi', function(){
 
             var dnd = {
                 dragObject : {}
@@ -155,6 +155,6 @@ $(function() {
                     return dnd.dragObject;
                 }
             };
-    } );
+        } );
 
 });
