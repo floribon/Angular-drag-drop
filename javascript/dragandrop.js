@@ -1,4 +1,4 @@
-$(function() {
+(function() {
 
     angular.module('dragAndDrop', [])
         .directive( 'drag', function ( dndApi ) {
@@ -22,10 +22,10 @@ $(function() {
                         }
 
                         angular.forEach( drags, function ( value, key ) {
-                            $(value).addClass('dragging');
+                            angular.element(value).addClass('dragging');
                         } );
 
-                        $(this).addClass('in-drag');
+                        elem.addClass('in-drag');
 
                         dndApi.setData(scope.item);
 
@@ -39,10 +39,10 @@ $(function() {
 
                     elem[0].addEventListener( 'dragend', function ( e ) {
 
-                        $(this).removeClass('in-drag');
+                        elem.removeClass('in-drag');
 
                         angular.forEach( drags, function ( value, key ) {
-                            $(value).removeClass('dragging');
+                            value.className = value.className.replace( dragging, '' );
                         } );
 
                         scope.$apply( function () {
@@ -55,89 +55,92 @@ $(function() {
 
                     elem[0].draggable = true;
 
-                    elem.addClass('drag');
+                    elem[0].className = elem[0].className + ' drag';
 
                 }
             };
         } ).directive( 'drop', function ( dndApi ) {
 
-        var drags = [],
-            dragging = new RegExp( '(\\s|^)dragging(\\s|$)');
+            var drags = [],
+                dragging = new RegExp( '(\\s|^)dragging(\\s|$)');
 
-        return {
-            scope: {
-                whenDrop: '&',
-                whenEnter : '&',
-                whenLeave : '&'
-            },
-            link: function ( scope, elem, attr, ctrl ) {
+            return {
+                scope: {
+                    drop : '=',
+                    whenDrop: '&',
+                    whenEnter : '&',
+                    whenLeave : '&'
+                },
+                link: function ( scope, elem, attr, ctrl ) {
 
-                var left = elem[0].offsetLeft,
-                    right = left + elem[0].offsetWidth,
-                    top = elem[0].offsetTop,
-                    bottom = top + elem[0].offsetHeight;
-
-                elem[0].addEventListener( 'drop', function ( e ) {
-
-                    if(e.stopPropagation()){
-                        e.preventDefault();
-                    }
-
-                    scope.$apply( function () {
-                        scope.whenDrop( { data: dndApi.getData(), elem: elem } );
-                    } );
-
-                    if ( drags.length === 0 ) {
-                        drags = document.querySelectorAll( '.drop' );
-                    }
-
-                    angular.forEach( drags, function ( value, key ) {
-
-                        $(value).removeClass('dragging');
-
-                    } );
-
-                    dndApi.removeData();
-
-                } );
-
-                // elem.bind( 'dragenter', function(e){
-
-                //     if(elem[0] === e.currentTarget)
-                //     {
-                //         scope.$apply( function () {
-                //             scope.whenEnter( { data: dndApi.getData() } );
-                //         } );
-                //     }
-
-                // });
-
-                elem[0].addEventListener ( 'dragleave', function(e){
+                    var left = elem[0].offsetLeft,
+                        right = left + elem[0].offsetWidth,
+                        top = elem[0].offsetTop,
+                        bottom = top + elem[0].offsetHeight;
 
 
-                    if( (e.x < left || e.x > right) ||
-                        (e.y < top  || e.y > bottom) )
-                    {
+                    elem[0].addEventListener( 'drop', function ( e ) {
+
+                        if(e.stopPropagation()){
+                            e.preventDefault();
+                        }
+
                         scope.$apply( function () {
-                            scope.whenLeave( { data: dndApi.getData(), elem: elem } );
+                            scope.whenDrop( { data: dndApi.getData(), elem: elem } );
                         } );
-                    }
-                });
 
-                elem[0].addEventListener ( 'dragover', function ( e ) {
+                        if ( drags.length === 0 ) {
+                            drags = document.querySelectorAll( '.drop' );
+                        }
 
-                    if ( e.preventDefault ) {
-                        e.preventDefault();
-                    }
+                        angular.forEach( drags, function ( value, key ) {
+                            angular.element(value).removeClass('dragging');
+                        } );
 
-                    return false;
+                        dndApi.removeData();
 
-                } );
+                    } );
 
-                elem.addClass('drop');
+                    elem[0].addEventListener ( 'dragenter', function(e){
 
-            }
-        };
+                        if(elem[0] === e.target)
+                        {
+                            scope.$apply( function () {
+                                scope.whenEnter( { data: dndApi.getData() } );
+                            } );
+                        }
+
+                    });
+
+                    elem[0].addEventListener ( 'dragleave', function(e){
+
+
+                        if( (e.x < left || e.x > right) ||
+                            (e.y < top  || e.y > bottom) )
+                        {
+                            scope.$apply( function () {
+                                scope.whenLeave( { data: dndApi.getData(), elem: elem } );
+                            } );
+                        }
+                    });
+
+
+                    elem[0].addEventListener ( 'dragover', function ( e ) {
+
+                        if ( e.preventDefault ) {
+                            e.preventDefault();
+                        }
+
+                        return false;
+
+                    } );
+
+
+                    elem.addClass('drop');
+
+                }
+            };
+
         } ).factory('dndApi', function(){
 
             var dnd = {
@@ -157,4 +160,4 @@ $(function() {
             };
         } );
 
-});
+}());
