@@ -22,10 +22,10 @@ $(function() {
                     }
 
                     angular.forEach( drags, function ( value, key ) {
-                        value.className = value.className + ' dragging';
+                        $(value).addClass('dragging');
                     } );
 
-                    this.style.opacity = '0.4';
+                    $(this).addClass('in-drag');
 
                     dndApi.setData(scope.item);
 
@@ -39,10 +39,10 @@ $(function() {
 
                 elem[0].addEventListener( 'dragend', function ( e ) {
 
-                    this.style.opacity = '1';
+                    $(this).removeClass('in-drag');
 
                     angular.forEach( drags, function ( value, key ) {
-                        value.className = value.className.replace( dragging, '' );
+                        $(value).removeClass('dragging');
                     } );
 
                     scope.$apply( function () {
@@ -55,7 +55,7 @@ $(function() {
 
                 elem[0].draggable = true;
 
-                elem[0].className = elem[0].className + ' drag';
+                elem.addClass('drag');
 
             }
         };
@@ -66,7 +66,6 @@ $(function() {
 
         return {
             scope: {
-                drop : '=',
                 whenDrop: '&',
                 whenEnter : '&',
                 whenLeave : '&'
@@ -85,7 +84,7 @@ $(function() {
                     }
 
                     scope.$apply( function () {
-                        scope.whenDrop( { data: dndApi.getData() } );
+                        scope.whenDrop( { data: dndApi.getData(), elem: elem } );
                     } );
 
                     if ( drags.length === 0 ) {
@@ -94,7 +93,7 @@ $(function() {
 
                     angular.forEach( drags, function ( value, key ) {
 
-                        value.className = value.className.replace( dragging, '' );
+                        $(value).removeClass('dragging');
 
                     } );
 
@@ -102,16 +101,16 @@ $(function() {
 
                 } );
 
-                elem[0].addEventListener ( 'dragenter', function(e){
+                // elem.bind( 'dragenter', function(e){
 
-                    if(elem[0] === e.target)
-                    {
-                        scope.$apply( function () {
-                            scope.whenEnter( { data: dndApi.getData() } );
-                        } );
-                    }
+                //     if(elem[0] === e.currentTarget)
+                //     {
+                //         scope.$apply( function () {
+                //             scope.whenEnter( { data: dndApi.getData() } );
+                //         } );
+                //     }
 
-                });
+                // });
 
                 elem[0].addEventListener ( 'dragleave', function(e){
 
@@ -120,7 +119,7 @@ $(function() {
                         (e.y < top  || e.y > bottom) )
                     {
                         scope.$apply( function () {
-                            scope.whenLeave( { data: dndApi.getData() } );
+                            scope.whenLeave( { data: dndApi.getData(), elem: elem } );
                         } );
                     }
                 });
@@ -135,7 +134,7 @@ $(function() {
 
                 } );
 
-                elem[0].className = elem[0].className + ' drop';
+                elem.addClass('drop');
 
             }
         };
