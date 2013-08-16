@@ -86,7 +86,7 @@
                         }
 
                         scope.$apply( function () {
-                            scope.whenDrop( { data: dndApi.getData(), elem: elem } );
+                            scope.whenDrop( { data: dndApi.getData(), target: elem } );
                         } );
 
                         if ( drags.length === 0 ) {
@@ -106,7 +106,7 @@
                         if(elem[0] === e.target)
                         {
                             scope.$apply( function () {
-                                scope.whenEnter( { data: dndApi.getData() } );
+                                scope.whenEnter( { data: dndApi.getData(), target: elem } );
                             } );
                         }
 
@@ -119,7 +119,7 @@
                             (e.y < top  || e.y > bottom) )
                         {
                             scope.$apply( function () {
-                                scope.whenLeave( { data: dndApi.getData(), elem: elem } );
+                                scope.whenLeave( { data: dndApi.getData(), target: elem } );
                             } );
                         }
                     });
