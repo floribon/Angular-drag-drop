@@ -8,12 +8,32 @@
 
             return {
                 restrict: 'A',
-                scope: {
-                    item: '=drag',
-                    whenStart : '&',
-                    whenEnd : '&'
-                },
-                link: function ( scope, elem, attr, ctrl ) {
+                scope: true,
+                link: function ( scope, elem, attrs ) {
+
+                    scope.whenStart = function(data) {
+                        if(scope.data) {scope.__data_bak = scope.data;}
+                        scope.data = data;
+                        scope.$eval(attrs.whenStart);
+                        if(scope.__data_bak) {
+                            scope.data = scope.__data_bak;
+                        } else {
+                            delete scope.data;
+                        }
+                    }
+
+                    scope.whenEnd = function(data) {
+                        if(scope.data) {scope.__data_bak = scope.data;}
+                        scope.data = data;
+                        scope.$eval(attrs.whenEnd);
+                        if(scope.__data_bak) {
+                            scope.data = scope.__data_bak;
+                        } else {
+                            delete scope.data;
+                        }
+                    }
+
+                    var item = scope.$eval(attrs.drag);
 
                     elem[0].addEventListener( 'dragstart', function ( e ) {
 
@@ -25,9 +45,9 @@
                             angular.element(value).addClass('dragging');
                         } );
 
-                        elem.addClass('in-drag');
+                        elem.addClass('on-drag');
 
-                        dndApi.setData(scope.item);
+                        dndApi.setData(item);
 
                         e.dataTransfer.effectAllowed = 'move';
 
@@ -39,7 +59,7 @@
 
                     elem[0].addEventListener( 'dragend', function ( e ) {
 
-                        elem.removeClass('in-drag');
+                        elem.removeClass('on-drag');
 
                         angular.forEach( drags, function ( value, key ) {
                             value.className = value.className.replace( dragging, '' );
